@@ -359,7 +359,12 @@ class S3Hook(AwsBaseHook):
 
     @provide_bucket_name
     @unify_bucket_name_and_key
-    def read_key(self, key: str, bucket_name: Optional[str] = None) -> str:
+    def read_key(
+        self,
+        key: str,
+        bucket_name: Optional[str] = None,
+        encoding: str = 'utf-8',
+    ) -> str:
         """
         Reads a key from S3
 
@@ -367,11 +372,13 @@ class S3Hook(AwsBaseHook):
         :type key: str
         :param bucket_name: Name of the bucket in which the file is stored
         :type bucket_name: str
+        :param encoding: The string to file encoding
+        :type encoding: str
         :return: the content of the key
         :rtype: str
         """
         obj = self.get_key(key, bucket_name)
-        return obj.get()['Body'].read().decode('utf-8')
+        return obj.get()['Body'].read().decode(encoding)
 
     @provide_bucket_name
     @unify_bucket_name_and_key
@@ -535,7 +542,7 @@ class S3Hook(AwsBaseHook):
         bucket_name: Optional[str] = None,
         replace: bool = False,
         encrypt: bool = False,
-        encoding: Optional[str] = None,
+        encoding: str = 'utf-8',
         acl_policy: Optional[str] = None,
         compression: Optional[str] = None,
     ) -> None:
@@ -565,8 +572,6 @@ class S3Hook(AwsBaseHook):
         :param compression: Type of compression to use, currently only gzip is supported.
         :type compression: str
         """
-        encoding = encoding or 'utf-8'
-
         bytes_data = string_data.encode(encoding)
 
         # Compress string
